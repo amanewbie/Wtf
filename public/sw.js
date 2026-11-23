@@ -1,5 +1,5 @@
-const CACHE = "nexa-shell-v1";
-const ASSETS = ["/", "/index.html", "/styles.css", "/app.js", "/manifest.webmanifest", "/icon.svg"];
+const CACHE = "nexa-shell-v2";
+const ASSETS = ["/", "/index.html", "/styles.css", "/app.js", "/local-ai.js", "/manifest.webmanifest", "/icon.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
