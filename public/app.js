@@ -7,7 +7,8 @@ const toast = document.querySelector("#toast");
 const historyKey = "nexa-chat-v1";
 let messages = [];
 let busy = false;
-let localMode = false;
+const localPreferenceKey = "nexa-local-ai-enabled";
+let localMode = localStorage.getItem(localPreferenceKey) === "true";
 
 function notify(message) {
   toast.textContent = message;
@@ -54,7 +55,12 @@ async function sendMessage(text) {
   thinking.classList.add("typing");
   setBusy(true);
   try {
-    if (localMode && window.NEXALocalAI?.isReady()) {
+    if (localMode) {
+      if (!window.NEXALocalAI) throw new Error("Local AI is still starting. Refresh once and try again.");
+      if (!window.NEXALocalAI.isReady()) {
+        notify("Waking up local AI…");
+        await window.NEXALocalAI.load();
+      }
       const reply = await window.NEXALocalAI.reply(messages.slice(-20));
       messages.push({ role: "assistant", content: reply });
       saveMessages();
@@ -149,6 +155,7 @@ const localAiButton = document.querySelector("#localAiButton");
 localAiButton.addEventListener("click", async () => {
   if (localMode) {
     localMode = false;
+    localStorage.setItem(localPreferenceKey, "false");
     localAiButton.textContent = "Local AI";
     notify("Cloud mode selected.");
     return;
@@ -166,6 +173,7 @@ localAiButton.addEventListener("click", async () => {
       if (progress?.text) notify(progress.text);
     });
     localMode = true;
+    localStorage.setItem(localPreferenceKey, "true");
     localAiButton.textContent = "Local ON";
     notify("Local AI is ready. Your messages will run on this device.");
   } catch (error) {
@@ -175,3 +183,25 @@ localAiButton.addEventListener("click", async () => {
     localAiButton.disabled = false;
   }
 });
+
+
+// Restore the user's Local AI choice after refresh; never silently fall back to paid cloud mode.
+if (localMode) {
+  localAiButton.disabled = true;
+  localAiButton.textContent = "Starting local…";
+  window.addEventListener("load", async () => {
+    try {
+      if (!window.NEXALocalAI) throw new Error("Local AI module did not load.");
+      await window.NEXALocalAI.load();
+      localAiButton.textContent = "Local ON";
+      notify("Local AI is ready on this device.");
+    } catch (error) {
+      localMode = false;
+      localStorage.setItem(localPreferenceKey, "false");
+      localAiButton.textContent = "Local AI";
+      notify(error.message || "Local AI could not restart. Tap Local AI to try again.");
+    } finally {
+      localAiButton.disabled = false;
+    }
+  }, { once: true });
+}
