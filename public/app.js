@@ -106,3 +106,32 @@ try {
   if (Array.isArray(saved)) messages = saved.filter(m => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string").slice(-40);
 } catch { messages = []; }
 render();
+
+// Installable app support (PWA).
+let installPrompt = null;
+const installButton = document.querySelector("#installApp");
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  installPrompt = event;
+  installButton.hidden = false;
+});
+installButton.addEventListener("click", async () => {
+  if (!installPrompt) {
+    notify("Open your browser menu and choose Install app or Add to Home screen.");
+    return;
+  }
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  installButton.hidden = true;
+});
+window.addEventListener("appinstalled", () => {
+  installPrompt = null;
+  installButton.hidden = true;
+  notify("NEXA AI installed.");
+});
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
