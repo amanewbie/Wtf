@@ -1,5 +1,5 @@
 // NEXA on-device language model. No API key is used for local replies.
-const MODEL_ID = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+const MODEL_ID = "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
 let engine = null;
 let loading = null;
 
