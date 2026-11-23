@@ -222,7 +222,7 @@ localAiButton.addEventListener("click", async () => {
     notify("Local AI is still starting. Try again in a moment.");
     return;
   }
-  const accepted = window.confirm("Enable on-device AI? This downloads a model of about 1 GB to your browser. It may use significant memory and battery. Continue?");
+  const accepted = window.confirm("Enable on-device AI? This downloads a model that needs about 1.6 GB of graphics memory to your browser. It may use significant memory and battery. Continue?");
   if (!accepted) return;
   localAiButton.disabled = true;
   localAiButton.textContent = "Loading…";
