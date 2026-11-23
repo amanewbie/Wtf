@@ -5,7 +5,10 @@ const welcome = document.querySelector("#welcome");
 const sendButton = document.querySelector("#sendButton");
 const toast = document.querySelector("#toast");
 const historyKey = "nexa-chat-v1";
+const chatsKey = "nexa-chats-v1";
 let messages = [];
+let chats = [];
+let activeChatId = null;
 let busy = false;
 const localPreferenceKey = "nexa-local-ai-enabled";
 let localMode = localStorage.getItem(localPreferenceKey) === "true";
@@ -17,7 +20,45 @@ function notify(message) {
   notify.timer = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 function saveMessages() {
-  try { localStorage.setItem(historyKey, JSON.stringify(messages.slice(-40))); } catch {}
+  try { localStorage.setItem(historyKey, JSON.stringify(messages.slice(-100))); } catch {}
+  if (!messages.length) return;
+  if (!activeChatId) activeChatId = String(Date.now());
+  const firstUser = messages.find(message => message.role === "user");
+  const title = firstUser ? firstUser.content.slice(0, 42) + (firstUser.content.length > 42 ? "…" : "") : "New chat";
+  const existing = chats.find(chat => chat.id === activeChatId);
+  const record = { id: activeChatId, title, updatedAt: Date.now(), messages: messages.slice(-100) };
+  if (existing) Object.assign(existing, record);
+  else chats.unshift(record);
+  chats.sort((a, b) => b.updatedAt - a.updatedAt);
+  chats = chats.slice(0, 50);
+  try { localStorage.setItem(chatsKey, JSON.stringify(chats)); } catch {}
+  renderChatHistory();
+}
+function renderChatHistory() {
+  const list = document.querySelector("#chatHistoryList");
+  if (!list) return;
+  list.replaceChildren();
+  if (!chats.length) {
+    const empty = document.createElement("div");
+    empty.className = "history-empty";
+    empty.textContent = "No saved chats yet";
+    list.append(empty);
+    return;
+  }
+  chats.forEach(chat => {
+    const button = document.createElement("button");
+    button.className = "history-chat" + (chat.id === activeChatId ? " active" : "");
+    button.textContent = chat.title || "Conversation";
+    button.title = chat.title || "Conversation";
+    button.addEventListener("click", () => {
+      activeChatId = chat.id;
+      messages = chat.messages.slice();
+      render();
+      renderChatHistory();
+      document.querySelector("#sidebar").classList.remove("open");
+    });
+    list.append(button);
+  });
 }
 function addMessage(role, content) {
   const item = document.createElement("div");
@@ -104,9 +145,12 @@ document.querySelectorAll("[data-prompt]").forEach(button => {
   button.addEventListener("click", () => sendMessage(button.dataset.prompt));
 });
 function newChat() {
+  if (messages.length) saveMessages();
   messages = [];
-  saveMessages();
+  activeChatId = null;
+  try { localStorage.removeItem(historyKey); } catch {}
   render();
+  renderChatHistory();
   input.focus();
 }
 document.querySelector("#newChat").addEventListener("click", newChat);
@@ -114,12 +158,26 @@ document.querySelector("#clearChat").addEventListener("click", newChat);
 document.querySelector("#mobileMenu").addEventListener("click", () => {
   document.querySelector("#sidebar").classList.toggle("open");
 });
-document.querySelector("#historyButton").addEventListener("click", () => notify("Saved chat history is coming in a later update."));
+document.querySelector("#historyButton").addEventListener("click", () => {
+  document.querySelector("#chatHistoryList").classList.toggle("history-hidden");
+});
 try {
-  const saved = JSON.parse(localStorage.getItem(historyKey) || "[]");
-  if (Array.isArray(saved)) messages = saved.filter(m => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string").slice(-40);
-} catch { messages = []; }
+  const savedChats = JSON.parse(localStorage.getItem(chatsKey) || "[]");
+  if (Array.isArray(savedChats)) chats = savedChats.filter(chat => chat && typeof chat.id === "string" && Array.isArray(chat.messages)).slice(0, 50);
+  if (!chats.length) {
+    const oldMessages = JSON.parse(localStorage.getItem(historyKey) || "[]");
+    if (Array.isArray(oldMessages) && oldMessages.length) {
+      messages = oldMessages.filter(m => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string").slice(-100);
+      if (messages.length) saveMessages();
+    }
+  } else {
+    const latest = chats[0];
+    activeChatId = latest.id;
+    messages = latest.messages.slice(-100);
+  }
+} catch { chats = []; messages = []; }
 render();
+renderChatHistory();
 
 // Installable app support (PWA).
 let installPrompt = null;
