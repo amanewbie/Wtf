@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0d14">
+<meta name="description" content="NEXA AI — your personal AI assistant.">
+<title>NEXA AI</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="/"><span class="brand-mark">N</span><span>NEXA <b>AI</b></span></a>
+<button class="new-chat" id="newChat"><span>＋</span> New chat</button>
+<div class="side-label">WORKSPACE</div>
+<button class="nav-item active"><span>◈</span> Assistant</button>
+<button class="nav-item" id="historyButton"><span>◷</span> Recent chats</button>
+<div class="side-spacer"></div>
+<div class="status-card"><span class="status-dot"></span><div><b>NEXA is ready</b><small>Your assistant is online</small></div></div>
+<div class="profile"><div class="avatar">Y</div><div><b>Your workspace</b><small>Personal assistant</small></div><span class="profile-more">···</span></div>
+</aside>
+<main class="main">
+<header class="topbar"><button class="mobile-menu" id="mobileMenu" aria-label="Open menu">☰</button><div class="top-title">Assistant <span class="top-tag">BETA</span></div><button class="icon-button" id="clearChat" title="Clear conversation" aria-label="Clear conversation">↻</button></header>
+<section class="conversation" id="conversation">
+<div class="welcome" id="welcome">
+<div class="welcome-orb"><span>✳</span></div><div class="eyebrow">YOUR AI ASSISTANT</div>
+<h1>What are we <em>figuring out</em> today?</h1>
+<p>Ask questions, explore ideas, write code, or plan your next move.</p>
+<div class="suggestions">
+<button class="suggestion" data-prompt="Help me plan my week"><span>▦</span><b>Plan my week</b><small>Organize tasks and priorities</small></button>
+<button class="suggestion" data-prompt="Explain a difficult topic in simple terms"><span>◇</span><b>Learn something</b><small>Make complex ideas clearer</small></button>
+<button class="suggestion" data-prompt="Help me build a small coding project"><span>⌘</span><b>Build with code</b><small>Turn an idea into a project</small></button>
+<button class="suggestion" data-prompt="Give me five creative project ideas"><span>✧</span><b>Explore ideas</b><small>Brainstorm something new</small></button>
+</div></div>
+<div class="messages" id="messages" aria-live="polite"></div>
+</section>
+<footer class="composer-wrap">
+<form class="composer" id="chatForm"><textarea id="messageInput" rows="1" maxlength="12000" placeholder="Message NEXA..." aria-label="Message NEXA"></textarea><div class="composer-bottom"><div class="composer-hint"><span class="sparkle">✳</span> NEXA AI <span class="hint-divider">·</span> Responses may need verification</div><button class="send-button" id="sendButton" type="submit" aria-label="Send message">↑</button></div></form>
+<div class="footer-note">NEXA can make mistakes. Check important information.</div>
+</footer></main></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="/app.js"></script>
+</body></html>
