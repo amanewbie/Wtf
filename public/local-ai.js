@@ -32,10 +32,13 @@ async function load(onProgress = () => {}) {
 async function reply(messages) {
   if (!engine) throw new Error("Local AI has not finished loading.");
   const result = await engine.chat.completions.create({
-    messages: messages.map(message => ({
+    messages: [
+      { role: "system", content: "You are NEXA, a helpful, capable, friendly AI assistant. Be clear, conversational, and practical. Follow the user’s request, ask a brief clarifying question when needed, and admit uncertainty rather than inventing facts. Help with learning, coding, writing, planning, and everyday questions. Keep replies concise unless detail is requested." },
+      ...messages.map(message => ({
       role: message.role,
       content: message.content
-    })),
+    }))
+    ],
     temperature: 0.7,
     max_tokens: 512
   });
