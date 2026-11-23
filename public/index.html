@@ -26,7 +26,7 @@
 <div class="profile"><div class="avatar">Y</div><div><b>Your workspace</b><small>Personal assistant</small></div><span class="profile-more">···</span></div>
 </aside>
 <main class="main">
-<header class="topbar"><button class="mobile-menu" id="mobileMenu" aria-label="Open menu">☰</button><div class="top-title">Assistant <span class="top-tag">BETA</span></div><button class="icon-button install-button" id="installApp" hidden title="Install NEXA AI">Install</button><button class="icon-button" id="clearChat" title="Clear conversation" aria-label="Clear conversation">↻</button></header>
+<header class="topbar"><button class="mobile-menu" id="mobileMenu" aria-label="Open menu">☰</button><div class="top-title">Assistant <span class="top-tag">BETA</span></div><button class="icon-button install-button" id="installApp" hidden title="Install NEXA AI">Install</button><button class="icon-button local-ai-button" id="localAiButton" title="Load on-device AI">Local AI</button><button class="icon-button" id="clearChat" title="Clear conversation" aria-label="Clear conversation">↻</button></header>
 <section class="conversation" id="conversation">
 <div class="welcome" id="welcome">
 <div class="welcome-orb"><span>✳</span></div><div class="eyebrow">YOUR AI ASSISTANT</div>
@@ -46,4 +46,5 @@
 </footer></main></div>
 <div class="toast" id="toast" role="status"></div>
 <script src="/app.js"></script>
+<script type="module" src="/local-ai.js"></script>
 </body></html>
