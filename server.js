@@ -34,10 +34,7 @@ app.post("/api/chat", async (req, res) => {
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
       instructions: "You are NEXA, a capable, friendly, practical AI assistant. Be clear, accurate, and conversational. Admit uncertainty instead of inventing facts. Help with planning, learning, writing, coding, and everyday tasks. Do not claim to perform actions outside this chat.",
-      input: safeMessages.map(m => ({
-        role: m.role,
-        content: [{ type: "input_text", text: m.content }]
-      }))
+      input: safeMessages.map(m => ({ role: m.role, content: m.content }))
     });
     res.json({ reply: response.output_text || "I couldn't generate a response. Try again." });
   } catch (error) {
