@@ -7,6 +7,7 @@ const toast = document.querySelector("#toast");
 const historyKey = "nexa-chat-v1";
 let messages = [];
 let busy = false;
+let localMode = false;
 
 function notify(message) {
   toast.textContent = message;
@@ -53,6 +54,13 @@ async function sendMessage(text) {
   thinking.classList.add("typing");
   setBusy(true);
   try {
+    if (localMode && window.NEXALocalAI?.isReady()) {
+      const reply = await window.NEXALocalAI.reply(messages.slice(-20));
+      messages.push({ role: "assistant", content: reply });
+      saveMessages();
+      render();
+      return;
+    }
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -135,3 +143,35 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
 }
+
+// Optional on-device AI. The model is downloaded only after the user chooses to enable it.
+const localAiButton = document.querySelector("#localAiButton");
+localAiButton.addEventListener("click", async () => {
+  if (localMode) {
+    localMode = false;
+    localAiButton.textContent = "Local AI";
+    notify("Cloud mode selected.");
+    return;
+  }
+  if (!window.NEXALocalAI) {
+    notify("Local AI is still starting. Try again in a moment.");
+    return;
+  }
+  const accepted = window.confirm("Enable on-device AI? This downloads a model of about 1 GB to your browser. It may use significant memory and battery. Continue?");
+  if (!accepted) return;
+  localAiButton.disabled = true;
+  localAiButton.textContent = "Loading…";
+  try {
+    await window.NEXALocalAI.load(progress => {
+      if (progress?.text) notify(progress.text);
+    });
+    localMode = true;
+    localAiButton.textContent = "Local ON";
+    notify("Local AI is ready. Your messages will run on this device.");
+  } catch (error) {
+    localAiButton.textContent = "Local AI";
+    notify(error.message || "Could not start local AI. Cloud mode is unchanged.");
+  } finally {
+    localAiButton.disabled = false;
+  }
+});
